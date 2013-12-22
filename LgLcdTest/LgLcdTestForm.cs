@@ -22,7 +22,8 @@ namespace LgLcdTest
 
 		void LgLcdTestForm_HandleCreated(object sender, EventArgs e)
 		{
-			BackLight.Initialize(base.Handle);
+            LogitechKeyboardManager.Init(Handle, LogitechKeyboardTypes.G510);
+            Program.LogitechKeyboard = LogitechKeyboardManager.GetKeyboards(LogitechKeyboardTypes.G510).First();
 		}
 
 		public override void OnDeviceArrival(DeviceType deviceType)
@@ -64,8 +65,8 @@ namespace LgLcdTest
 		{
 			Bitmap bmp = (Bitmap)Bitmap.FromFile(
 				@"..\..\qvga_sample" + (b ? 1 : 2) + ".bmp");
-			device.UpdateBitmap(bmp, Priority.Normal, false, false);
-			device.SetAsLCDForegroundApp(true);
+			Device.UpdateBitmap(bmp, Priority.Normal, false, false);
+			Device.SetAsLCDForegroundApp(true);
 			b = !b;
 			UpdateLcdScreen(this, EventArgs.Empty);
 		}

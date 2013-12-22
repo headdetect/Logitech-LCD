@@ -7,34 +7,39 @@ using System.Runtime.InteropServices;
 
 namespace LgBackLight {
 
-	internal class HidDevice : IDisposable {
+	public class HidDevice : IDisposable {
 
 		public int VendorId { get; private set; }
 		public int ProductId { get; private set; }
 		public int VersionNumber { get; private set; }
 		public string DevicePath { get; private set; }
 
-		public bool GetFeature(byte[] reportBuffer) {
+		internal bool GetFeature(byte[] reportBuffer) {
 			return Hid.HidD_GetFeature(handle, reportBuffer, reportBuffer.Length);
 		}
 
-		public bool SetFeature(byte[] reportBuffer) {
+        internal bool SetFeature(byte[] reportBuffer)
+        {
 			return Hid.HidD_SetFeature(handle, reportBuffer, reportBuffer.Length);
 		}
 
-		public bool GetInputReport(byte[] reportBuffer) {
+        internal bool GetInputReport(byte[] reportBuffer)
+        {
 			return Hid.HidD_GetInputReport(handle, reportBuffer, reportBuffer.Length);
 		}
 
-		public bool SetOutputReport(byte[] reportBuffer) {
+        internal bool SetOutputReport(byte[] reportBuffer)
+        {
 			return Hid.HidD_SetOutputReport(handle, reportBuffer, reportBuffer.Length);
 		}
 
-		public static List<HidDevice> Open(int vendorId, int productId) {
+        internal static List<HidDevice> Open(int vendorId, int productId)
+        {
 			return Open(vendorId, new int[] { productId });
 		}
-		
-		public static List<HidDevice> Open(int vendorId, IEnumerable<int> productIds) {
+
+        internal static List<HidDevice> Open(int vendorId, IEnumerable<int> productIds)
+        {
 			// Obtain system-defined GUID for HIDClass devices.
 			Guid hidClassGuid;
 			Hid.HidD_GetHidGuid(out hidClassGuid);
@@ -69,7 +74,7 @@ namespace LgBackLight {
 					// Write access causes failure if not running elevated.
 					IntPtr hDevice = Kernel32.CreateFile(
 						didd.DevicePath,
-						FileAccess.Read, // we just need read
+						(uint)FileAccess.Read, // we just need read
 						FileShare.ReadWrite, // and we don't want to restrict others from write
 						IntPtr.Zero,
 						FileMode.Open,
@@ -99,10 +104,11 @@ namespace LgBackLight {
 			return deviceList;
 		}
 
-		public static HidDevice Open(string devicePath) {
+        internal static HidDevice Open(string devicePath)
+        {
 			IntPtr handle = Kernel32.CreateFile(
 				devicePath,
-				FileAccess.Read,
+				(uint)FileAccess.Read,
 				FileShare.ReadWrite,
 				IntPtr.Zero,
 				FileMode.Open,
@@ -126,7 +132,8 @@ namespace LgBackLight {
 			throw new Exception();
 		}
 
-		public Hid.Caps GetCaps() {
+        internal Hid.Caps GetCaps()
+        {
 			Hid.Caps caps;
 			Hid.HidP_GetCaps(preparsedData, out caps);
 			return caps;
@@ -325,7 +332,7 @@ namespace LgBackLight {
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		public static extern IntPtr CreateFile(
 			string fileName,
-			FileAccess desiredAccess,
+			uint desiredAccess,
 			FileShare shareMode,
 			IntPtr securityAttributes, // struct but optional
 			FileMode mode,
